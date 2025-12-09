@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 from typing import List, Set, Dict, Tuple
 
 
-def load_word_list(filename: str = "wordl_list.txt") -> List[str]:
+def load_word_list(filename: str = "wordle_list.txt") -> List[str]:
     """Load words from a space-separated text file"""
     try:
         with open(filename, 'r', encoding='utf-8') as f:
@@ -253,8 +253,8 @@ def main():
     try:
         word_list = load_word_list()
     except FileNotFoundError:
-        print("\n❌ Error: wordl_list.txt not found!")
-        print("Please create a file named 'wordl_list.txt' with space-separated words.")
+        print("\n❌ Error: wordle_list.txt not found!")
+        print("Please create a file named 'wordle_list.txt' with space-separated words.")
         return
     
     solver = WordleSolver(word_list)
