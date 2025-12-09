@@ -139,7 +139,26 @@ class WordleSolver:
     def calculate_score(self, word: str, possible_solutions: List[str]) -> Tuple[float, int]:
         """
         Calculate both the average and worst-case number of remaining words after this guess.
-        More efficient implementation using pattern grouping.
+        
+        Algorithm (Pattern Grouping):
+        1. For each possible answer, simulate what feedback pattern we'd get
+        2. Group answers by their feedback pattern
+        3. Each group represents answers we CAN'T distinguish with this guess
+        4. Group size = how many words remain if we get that pattern
+        
+        Example:
+          Guess "ALERT" with possible answers [WRITE, WHITE, QUITE]
+          - WRITE → pattern "00210" 
+          - WHITE → pattern "00210" (same as WRITE!)
+          - QUITE → pattern "00012"
+          
+          Groups: {"00210": 2 words, "00012": 1 word}
+          
+          Average: (2² + 1²) / 3 = 5/3 = 1.67 words expected
+          Worst case: max(2, 1) = 2 words in worst scenario
+        
+        This is the standard information-theoretic approach for Wordle solvers.
+        
         Returns: (average_remaining, worst_case_remaining)
         """
         # Group solutions by their feedback pattern
@@ -155,10 +174,11 @@ class WordleSolver:
         if not group_sizes:
             return 0, 0
         
-        # Average: each group's size weighted by its probability
+        # Average: each group of size n contributes n²/total to expected value
+        # (probability n/total × remaining n = n²/total)
         average = sum(size * size for size in group_sizes) / len(possible_solutions)
         
-        # Worst case: largest group
+        # Worst case: largest group (unluckiest pattern we could get)
         worst_case = max(group_sizes)
         
         return average, worst_case
@@ -206,8 +226,9 @@ class WordleSolver:
                 best_avg_word = word
                 best_avg_worst = worst_score
             
-            # Track best for worst-case (minimax)
-            if worst_score < best_minimax_score:
+            # Track best for worst-case (minimax) with average as tiebreaker
+            if (worst_score < best_minimax_score or 
+                (worst_score == best_minimax_score and avg_score < best_minimax_avg)):
                 best_minimax_score = worst_score
                 best_minimax_word = word
                 best_minimax_avg = avg_score
@@ -269,13 +290,14 @@ def main():
             avg_word, avg_score, avg_worst = suggestions['average']
             mini_word, mini_avg, mini_score = suggestions['minimax']
             
-            print("\n💡 BEST FOR AVERAGE CASE (recommended):")
+            print("\n💡 BEST FOR AVERAGE CASE:")
             print(f"   Word: {avg_word}")
             print(f"   Average remaining: {avg_score:.2f} | Worst case: {avg_worst}")
             
             print("\n🛡️  BEST FOR WORST CASE (Minimax):")
             print(f"   Word: {mini_word}")
             print(f"   Average remaining: {mini_avg:.2f} | Worst case: {mini_score}")
+            print("   (When tied on worst case, picks best average)")
             
             if avg_word == mini_word:
                 print("\n✨ Both strategies agree!")
