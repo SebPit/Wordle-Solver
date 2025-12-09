@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """
-Wordle Solver - Interactive terminal script with Minimax strategy
-Usage: python wordle_solver.py
+Wordle Solver - Interactive terminal script with Dual strategy
+Usage: python wordle_solver.py [word_list_file]
+       python wordle_solver.py                    # Uses wordle_list.txt (default)
+       python wordle_solver.py custom_words.txt   # Uses custom word list
 """
 
+import argparse
 import string
 from collections import Counter, defaultdict
 from typing import List, Set, Dict, Tuple
@@ -183,13 +186,14 @@ class WordleSolver:
         
         return average, worst_case
     
-    def suggest_next_word(self) -> Dict[str, Tuple[str, float, int]]:
+    def suggest_next_word(self, top_n: int = 3) -> Dict[str, List[Tuple[str, float, int]]]:
         """
         Suggest the best next words using both strategies.
         Returns: {
-            'average': (word, avg_remaining, worst_case),
-            'minimax': (word, avg_remaining, worst_case)
+            'average': [(word1, avg, worst), (word2, avg, worst), ...],
+            'minimax': [(word1, avg, worst), (word2, avg, worst), ...]
         }
+        Each list contains up to top_n suggestions.
         """
         if not self.possible_words:
             return None
@@ -197,20 +201,15 @@ class WordleSolver:
         if len(self.possible_words) == 1:
             word = self.possible_words[0]
             return {
-                'average': (word, 0, 0),
-                'minimax': (word, 0, 0)
+                'average': [(word, 0, 0)],
+                'minimax': [(word, 0, 0)]
             }
         
         # Calculate both scores for all candidates
         candidates = self.possible_words
         
-        best_avg_word = None
-        best_avg_score = float('inf')
-        best_avg_worst = None
-        
-        best_minimax_word = None
-        best_minimax_score = float('inf')
-        best_minimax_avg = None
+        # Store all scores
+        all_scores = []  # List of (word, avg_score, worst_score)
         
         print(f"🔍 Analyzing {len(candidates)} candidates...", end='', flush=True)
         
@@ -219,25 +218,19 @@ class WordleSolver:
                 print(f"\r🔍 Analyzing {len(candidates)} candidates... ({i}/{len(candidates)})", end='', flush=True)
             
             avg_score, worst_score = self.calculate_score(word, self.possible_words)
-            
-            # Track best for average-case
-            if avg_score < best_avg_score:
-                best_avg_score = avg_score
-                best_avg_word = word
-                best_avg_worst = worst_score
-            
-            # Track best for worst-case (minimax) with average as tiebreaker
-            if (worst_score < best_minimax_score or 
-                (worst_score == best_minimax_score and avg_score < best_minimax_avg)):
-                best_minimax_score = worst_score
-                best_minimax_word = word
-                best_minimax_avg = avg_score
+            all_scores.append((word, avg_score, worst_score))
         
         print(f"\r🔍 Analysis complete!                                    ")
         
+        # Sort by average (ascending)
+        avg_sorted = sorted(all_scores, key=lambda x: x[1])[:top_n]
+        
+        # Sort by worst case (ascending), then by average as tiebreaker
+        minimax_sorted = sorted(all_scores, key=lambda x: (x[2], x[1]))[:top_n]
+        
         return {
-            'average': (best_avg_word, best_avg_score, best_avg_worst),
-            'minimax': (best_minimax_word, best_minimax_avg, best_minimax_score)
+            'average': avg_sorted,
+            'minimax': minimax_sorted
         }
     
     def get_stats(self) -> str:
@@ -252,6 +245,24 @@ class WordleSolver:
 
 
 def main():
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description='Wordle Solver with dual strategy analysis',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python wordle_solver.py                    # Use default wordle_list.txt
+  python wordle_solver.py custom_words.txt   # Use custom word list
+        """
+    )
+    parser.add_argument(
+        'wordlist',
+        nargs='?',
+        default='wordle_list.txt',
+        help='Path to word list file (default: wordle_list.txt)'
+    )
+    args = parser.parse_args()
+    
     print("=" * 60)
     print("WORDLE SOLVER - DUAL STRATEGY")
     print("=" * 60)
@@ -272,10 +283,10 @@ def main():
     
     # Load word list
     try:
-        word_list = load_word_list()
+        word_list = load_word_list(args.wordlist)
     except FileNotFoundError:
-        print("\n❌ Error: wordle_list.txt not found!")
-        print("Please create a file named 'wordle_list.txt' with space-separated words.")
+        print(f"\n❌ Error: {args.wordlist} not found!")
+        print(f"Please create a file named '{args.wordlist}' with space-separated words.")
         return
     
     solver = WordleSolver(word_list)
@@ -307,20 +318,20 @@ def main():
             else:
                 continue
         
-        avg_word, avg_score, avg_worst = suggestions['average']
-        mini_word, mini_avg, mini_score = suggestions['minimax']
+        avg_suggestions = suggestions['average']
+        minimax_suggestions = suggestions['minimax']
         
         print("\n💡 BEST FOR AVERAGE CASE:")
-        print(f"   Word: {avg_word}")
-        print(f"   Average remaining: {avg_score:.2f} | Worst case: {avg_worst}")
+        for i, (word, avg, worst) in enumerate(avg_suggestions, 1):
+            print(f"   {i}. {word:<8} → Avg: {avg:5.2f} | Worst: {worst:3}")
         
         print("\n🛡️  BEST FOR WORST CASE (Minimax):")
-        print(f"   Word: {mini_word}")
-        print(f"   Average remaining: {mini_avg:.2f} | Worst case: {mini_score}")
-        print("   (When tied on worst case, picks best average)")
+        for i, (word, avg, worst) in enumerate(minimax_suggestions, 1):
+            print(f"   {i}. {word:<8} → Avg: {avg:5.2f} | Worst: {worst:3}")
         
-        if avg_word == mini_word:
-            print("\n✨ Both strategies agree!")
+        # Check if both strategies agree on the best word
+        if avg_suggestions[0][0] == minimax_suggestions[0][0]:
+            print("\n✨ Both strategies agree on #1!")
         
         print(f"{'-' * 60}")
         

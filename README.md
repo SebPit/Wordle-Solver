@@ -1,10 +1,12 @@
-# Wordle Solver 🎯
+# Wordle Solver
 
 An optimal Wordle solver using information-theoretic strategies to suggest the best next guess. Implements both **average-case** and **minimax** (worst-case) algorithms to help you solve Wordle puzzles efficiently.
 
-## Features ✨
+## Features
 
 - **Dual Strategy Analysis**: Shows both average-case optimal and minimax (worst-case) optimal suggestions
+- **Top 3 Suggestions**: Displays the top 3 word choices for each strategy, giving you options
+- **Custom Word Lists**: Pass your own word list as a command-line argument
 - **Pattern Grouping Algorithm**: Uses the standard information-theoretic approach to evaluate guesses
 - **O(n²) Performance**: Efficiently analyzes all candidate words, even with large word lists
 - **Smart Tiebreaking**: Minimax uses average-case as tiebreaker when worst cases are equal
@@ -15,13 +17,13 @@ An optimal Wordle solver using information-theoretic strategies to suggest the b
 
 ### Prerequisites
 
-- Python 3.6 or higher (uses only standard library, no external deps)
+- Python 3.6 or higher (uses only standard library, no external dependencies)
 
 ### Setup
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/SebPit/Wordle-Solver.git
+git clone https://github.com/yourusername/wordle_solver.git
 cd wordle_solver
 ```
 
@@ -31,18 +33,25 @@ about above abuse actor acute admit adopt adult after again
 ...
 ```
 
-You can use the [official Wordle word list](https://gist.github.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b) or any custom word list. A copy of the list is part of the repository.
+You can use the [official Wordle word list](https://gist.github.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b) or any custom word list.
 
-## Usage 💻
+## Usage
 
 Run the solver:
 ```bash
+# Use default word list (wordle_list.txt)
 python wordle_solver.py
+
+# Use a custom word list
+python wordle_solver.py my_custom_words.txt
+
+# Show help
+python wordle_solver.py --help
 ```
 
 ### How to Use
 
-1. The solver suggests the best word to guess
+1. The solver suggests the **top 3 words** for both average-case and minimax strategies
 2. Enter your guess in Wordle
 3. Enter the result pattern using:
    - `0` = Letter not in word (gray)
@@ -63,15 +72,14 @@ Known letters (wrong position): set()
 Excluded letters: set()
 
 💡 BEST FOR AVERAGE CASE:
-   Word: RAISE
-   Average remaining: 61.72 | Worst case: 170
+   1. RAISE    → Avg: 61.72 | Worst: 170
+   2. ARISE    → Avg: 64.61 | Worst: 170
+   3. SOARE    → Avg: 65.30 | Worst: 168
 
 🛡️  BEST FOR WORST CASE (Minimax):
-   Word: RAISE
-   Average remaining: 61.72 | Worst case: 170
-   (When tied on worst case, picks best average)
-
-✨ Both strategies agree!
+   1. SOARE    → Avg: 65.30 | Worst: 168
+   2. RAISE    → Avg: 61.72 | Worst: 170
+   3. ARISE    → Avg: 64.61 | Worst: 170
 ------------------------------------------------------------
 
 Enter your guess (or command): RAISE
@@ -84,13 +92,14 @@ Known letters (wrong position): {'A', 'I'}
 Excluded letters: {'R', 'S'}
 
 💡 BEST FOR AVERAGE CASE:
-   Word: ALIEN
-   Average remaining: 2.33 | Worst case: 5
+   1. ALIEN    → Avg:  2.33 | Worst:   5
+   2. ATONE    → Avg:  2.50 | Worst:   4
+   3. AXITE    → Avg:  2.67 | Worst:   5
 
 🛡️  BEST FOR WORST CASE (Minimax):
-   Word: ALIVE
-   Average remaining: 2.50 | Worst case: 4
-   (When tied on worst case, picks best average)
+   1. ATONE    → Avg:  2.50 | Worst:   4
+   2. ALIEN    → Avg:  2.33 | Worst:   5
+   3. ALIKE    → Avg:  2.83 | Worst:   5
 ------------------------------------------------------------
 ```
 
@@ -100,7 +109,7 @@ Excluded letters: {'R', 'S'}
 - `reset` - Start over with a new puzzle
 - `show` - Display all remaining possible words
 
-## Algorithm Explanation 🧮
+## Algorithm Explanation
 
 ### Pattern Grouping
 
@@ -140,7 +149,7 @@ Worst case = max(2, 1, 1, 1) = 2 words
 - Guarantees you won't get very unlucky
 - Uses average as tiebreaker
 
-## Performance ⚡
+## Performance
 
 - **Complexity**: O(n²) where n is the number of remaining words
 - **Typical Analysis Time**: 
@@ -148,24 +157,16 @@ Worst case = max(2, 1, 1, 1) = 2 words
   - 100 words: <0.5 seconds
   - <20 words: Nearly instant
 
-## File Structure 📁
+## File Structure
 
 ```
 wordle_solver/
 ├── wordle_solver.py    # Main solver script
 ├── wordle_list.txt      # Your word list (space-separated)
+├── *_list.txt      # other word lists
 └── README.md           # This file
 ```
 
-## License 📄
+## License
 
 MIT License - feel free to use and modify as needed.
-
-## Tips 💡
-
-1. **First guess**: On a full word list, RAISE, SOARE, or ARISE are typically optimal
-2. **Strategy choice**: Use average-case for typical play, minimax if you want consistency
-3. **Hard mode**: The solver doesn't enforce hard mode constraints, but you can manually follow them
-4. **Custom word lists**: You can use different word lists for practice or different variants
-
----
