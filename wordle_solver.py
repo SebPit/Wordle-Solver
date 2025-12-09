@@ -286,24 +286,41 @@ def main():
         
         # Suggest next word
         suggestions = solver.suggest_next_word()
-        if suggestions:
-            avg_word, avg_score, avg_worst = suggestions['average']
-            mini_word, mini_avg, mini_score = suggestions['minimax']
+        if not suggestions:
+            print("\n❌ No possible words found!")
+            print("\nThis usually means:")
+            print("  1. You entered a word that's not in the word list")
+            print("  2. There was an error in the feedback pattern")
+            print("  3. The answer isn't in your word list")
+            print("\nOptions:")
+            print("  - Type 'reset' to start over")
+            print("  - Type 'quit' to exit")
             
-            print("\n💡 BEST FOR AVERAGE CASE: (Recommended)")
-            print(f"   Word: {avg_word}")
-            print(f"   Average remaining: {avg_score:.2f} | Worst case: {avg_worst}")
-            
-            print("\n🛡️  BEST FOR WORST CASE (Minimax):")
-            print(f"   Word: {mini_word}")
-            print(f"   Average remaining: {mini_avg:.2f} | Worst case: {mini_score}")
-            print("   (When tied on worst case, picks best average)")
-            
-            if avg_word == mini_word:
-                print("\n✨ Both strategies agree!")
-        else:
-            print("\n❌ No possible words found! Check your input.")
-            continue
+            choice = input("\nWhat would you like to do? ").strip().lower()
+            if choice in ['quit', 'exit']:
+                print("Thanks for playing!")
+                break
+            elif choice == 'reset':
+                solver.reset()
+                print("\n♻️  Solver reset! Starting fresh...")
+                continue
+            else:
+                continue
+        
+        avg_word, avg_score, avg_worst = suggestions['average']
+        mini_word, mini_avg, mini_score = suggestions['minimax']
+        
+        print("\n💡 BEST FOR AVERAGE CASE:")
+        print(f"   Word: {avg_word}")
+        print(f"   Average remaining: {avg_score:.2f} | Worst case: {avg_worst}")
+        
+        print("\n🛡️  BEST FOR WORST CASE (Minimax):")
+        print(f"   Word: {mini_word}")
+        print(f"   Average remaining: {mini_avg:.2f} | Worst case: {mini_score}")
+        print("   (When tied on worst case, picks best average)")
+        
+        if avg_word == mini_word:
+            print("\n✨ Both strategies agree!")
         
         print(f"{'-' * 60}")
         
