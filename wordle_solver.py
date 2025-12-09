@@ -290,7 +290,7 @@ def main():
             avg_word, avg_score, avg_worst = suggestions['average']
             mini_word, mini_avg, mini_score = suggestions['minimax']
             
-            print("\n💡 BEST FOR AVERAGE CASE:")
+            print("\n💡 BEST FOR AVERAGE CASE: (Recommended)")
             print(f"   Word: {avg_word}")
             print(f"   Average remaining: {avg_score:.2f} | Worst case: {avg_worst}")
             
