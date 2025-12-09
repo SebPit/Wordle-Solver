@@ -21,11 +21,11 @@ An optimal Wordle solver using information-theoretic strategies to suggest the b
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/SebPit/wordl_solver.git
-cd wordl_solver
+git clone https://github.com/SebPit/Wordle-Solver.git
+cd wordle_solver
 ```
 
-2. Create your word list file (`wordl_list.txt`) with space-separated 5-letter words:
+2. Create your word list file (`wordle_list.txt`) with space-separated 5-letter words:
 ```
 about above abuse actor acute admit adopt adult after again
 ...
@@ -151,9 +151,9 @@ Worst case = max(2, 1, 1, 1) = 2 words
 ## File Structure 📁
 
 ```
-wordl_solver/
+wordle_solver/
 ├── wordle_solver.py    # Main solver script
-├── wordl_list.txt      # Your word list (space-separated)
+├── wordle_list.txt      # Your word list (space-separated)
 └── README.md           # This file
 ```
 
